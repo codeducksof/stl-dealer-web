@@ -3,7 +3,9 @@ import React, { createContext, useState, useEffect } from 'react';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem("token"); // ใช้ !! เพื่อแปลงค่าเป็น boolean
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
