@@ -1,17 +1,28 @@
-import React, { useState } from "react";
+import React, { useState,useEffect  } from "react";
+import { useLocation } from "react-router-dom";
 
 const DealerRegistrationForm = () => {
+  const location = useLocation();
+  const kycData = location.state?.kycData || {}; // ดึงข้อมูลจาก state
+
+  const titles = ["----เลือก-----", "นางสาว", "นาง", "นาย", "เด็กหญิง"]; // เพิ่มตัวเลือกเริ่มต้น
+
+  const nameParts = kycData.name_th ? kycData.name_th.split(" ") : ["", "", ""]; 
+  const defaultTitle = nameParts[0] || "";
+  const defaultFirstName = nameParts[1] || "";
+  const defaultLastName = nameParts.slice(2).join(" ") || "";
+
   const [formData, setFormData] = useState({
     dealerName: "",
     cashType: "",
     amount: "",
     referEmp: "",
     referEmpTitle: "",
-    referEmpFirstName: "",
+    referEmpFirstName:  "",
     referEmpLastName: "",
-    reqTitle: "",
-    reqFirstName: "",
-    reqLastName: "",
+    reqTitle: defaultTitle,
+    reqFirstName: defaultFirstName,
+    reqLastName: defaultLastName, // รองรับนามสกุลที่มีหลายคำ
     onBehalfOf: "",
     taxId: "",
     authorizedShareCapital: "",
@@ -31,6 +42,15 @@ const DealerRegistrationForm = () => {
     request: ""
   });
 
+  //ถ้าเมื่อผู้ใช้กรอกข้อมูลในฟอร์มและกดส่งข้อมูลไปยังหน้าที่มี DealerRegistrationForm เมื่อกลับมาที่หน้านี้อาจจะมีการส่งข้อมูล KYC ใหม่ ดังนั้น useEffect จะช่วยให้ formData อัปเดตตามข้อมูลใหม่ที่ส่งเข้ามา
+  useEffect(() => {
+    setFormData({
+      referEmpTitle: defaultTitle,
+      referEmpFirstName: defaultFirstName,
+      referEmpLastName: defaultLastName,
+    });
+  }, [defaultTitle, defaultFirstName, defaultLastName]);
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -75,25 +95,25 @@ const DealerRegistrationForm = () => {
             <div className="row mb-3">
                 <div className="col-md-3">
                     <label>รหัสพนักงานผู้แนะนำ <span className="text-danger">*</span></label>
-                    <input type="number" name="ReferEmp" className="form-control" placeholder="รหัสพนักงานผู้แนะนำ" required onChange={handleChange} />
+                    <input type="number" name="referEmp" className="form-control" placeholder="รหัสพนักงานผู้แนะนำ" required onChange={handleChange} />
                 </div>
                 <div className="col-md-3">
                     <label>คำนำหน้า <span className="text-danger">*</span></label>
-                    <select name="referEmpTitle" className="form-control" required onChange={handleChange}>
-                    <option value="">----เลือก-----</option>
-                    <option value="นางสาว">นางสาว</option>
-                    <option value="นาง">นาง</option>
-                    <option value="นาย">นาย</option>
-                    <option value="เด็กหญิง">เด็กหญิง</option>
+                    <select name="referEmpTitle" className="form-control"  required onChange={handleChange}>
+                      {titles.map((title, index) => (
+                        <option key={index} value={title}>
+                          {title}
+                        </option>
+                      ))}
                     </select>
                 </div>
                 <div className="col-md-3">
                     <label>ชื่อ <span className="text-danger">*</span></label>
-                    <input type="number" name="referEmpFirstName" className="form-control" placeholder="ชื่อ" required onChange={handleChange} />
+                    <input type="text" name="referEmpFirstName" value={formData.referEmpFirstName} className="form-control" placeholder="ชื่อ" required onChange={handleChange} />
                 </div>
                 <div className="col-md-3">
                     <label>นามสกุล <span className="text-danger">*</span></label>
-                    <input type="number" name="referEmpLastName" className="form-control" placeholder="นามสกุล" required onChange={handleChange} />
+                    <input type="text" name="referEmpLastName" className="form-control" placeholder="นามสกุล" required onChange={handleChange} />
                 </div>
             </div>
 
@@ -106,21 +126,21 @@ const DealerRegistrationForm = () => {
             <div className="row mb-3">
               <div className="col-md-4">
                 <label>คำนำหน้า <span className="text-danger">*</span></label>
-                <select name="reqTitle" className="form-control" required onChange={handleChange}>
-                  <option value="">----เลือก-----</option>
-                  <option value="นางสาว">นางสาว</option>
-                  <option value="นาง">นาง</option>
-                  <option value="นาย">นาย</option>
-                  <option value="เด็กหญิง">เด็กหญิง</option>
+                <select name="reqTitle" className="form-control" value={formData.reqTitle} required onChange={handleChange}>
+                    {titles.map((title, index) => (
+                        <option key={index} value={title}>
+                          {title}
+                        </option>
+                      ))}
                 </select>
               </div>
               <div className="col-md-4">
                 <label>ชื่อ <span className="text-danger">*</span></label>
-                <input type="text" name="reqFirstName" className="form-control" placeholder="ชื่อ" required onChange={handleChange} />
+                <input type="text" name="reqFirstName" className="form-control" value={formData.reqFirstName} placeholder="ชื่อ" required onChange={handleChange} />
               </div>
               <div className="col-md-4">
                 <label>นามสกุล <span className="text-danger">*</span></label>
-                <input type="text" name="reqLastName" className="form-control" placeholder="นามสกุล" required onChange={handleChange} />
+                <input type="text" name="reqLastName" className="form-control" placeholder="นามสกุล" value={formData.reqLastName} onChange={handleChange} />
               </div>
             </div>
 

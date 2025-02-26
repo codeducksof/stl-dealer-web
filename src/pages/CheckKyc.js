@@ -1,10 +1,17 @@
 import React, { useState  } from "react";
+import { useNavigate } from "react-router-dom"; // ใช้สำหรับ redirect
 
 export default function CheckKyc() {
+
+
+  const apiUrl = process.env.REACT_APP_KYC_API_URL;
+  const apiKey = process.env.REACT_APP_KYC_API_KEY;
+  
   const [customerID, setCustomerID] = useState("");
   const [loading, setLoading] = useState(false); // สำหรับแสดงสถานะการโหลด
   const [error, setError] = useState("");
   const [responseData, setResponseData] = useState(null); // เก็บค่าที่ได้จาก API
+  const navigate = useNavigate(); // 👉 ใช้สำหรับ redirect
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,10 +20,12 @@ export default function CheckKyc() {
     setResponseData(null); // เคลียร์ค่าเก่าก่อนโหลดใหม่
 
     try {
-      const response = await fetch(`https://e-kyc-uat.jventures.co.th/user/${customerID}`, {
+
+      
+      const response = await fetch(`${apiUrl}/user/${customerID}`, {
         method: "GET",
         headers: {
-          "x-api-key": "3c6bc52a253440308e250d8836ad8ffa",
+          "x-api-key": apiKey,
           "Content-Type": "application/json",
         },
       });
@@ -25,8 +34,14 @@ export default function CheckKyc() {
           throw new Error("ไม่สามารถดึงข้อมูลได้");
       }
       
-      const data = await response.json(); // ถ้าต้องการใช้ข้อมูล API
-      setResponseData(JSON.stringify(data, null, 2)); // แปลงเป็น JSON String เพื่อแสดงใน HTML
+      const data = await response.json(); // 👉 ได้ข้อมูลจาก API
+
+      // ✅ ถ้ามีข้อมูล ให้ redirect ไป DealerRegistration.js
+      if (data.id) {
+        navigate("/DealerRegistration", { state: { kycData: data } });
+      } else {
+        setError("KYC ยังไม่ผ่านการตรวจสอบ");
+      }
       
     } catch (error) {
       setError(error.message);
