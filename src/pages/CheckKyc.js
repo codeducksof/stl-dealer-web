@@ -19,6 +19,12 @@ export default function CheckKyc() {
     setError(null);
     setResponseData(null); // เคลียร์ค่าเก่าก่อนโหลดใหม่
 
+    if (!apiUrl || !apiKey) {
+      setError("การตั้งค่า API ไม่ถูกต้อง");
+      setLoading(false);
+      return;
+    }
+
     try {
 
       
@@ -38,7 +44,7 @@ export default function CheckKyc() {
 
       // ✅ ถ้ามีข้อมูล ให้ redirect ไป DealerRegistration.js
       if (data.id) {
-        navigate("/DealerRegistration", { state: { kycData: data } });
+        navigate("/dealer-registration", { state: { kycData: data } });
       } else {
         setError("KYC ยังไม่ผ่านการตรวจสอบ");
       }
@@ -51,19 +57,19 @@ export default function CheckKyc() {
   };
 
   return (
-    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    <div className="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
     data-sidebar-position="fixed" data-header-position="fixed">
     <div
-      class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
-      <div class="d-flex align-items-center justify-content-center w-100">
-        <div class="row justify-content-center w-100">
-          <div class="col-md-8 col-lg-6 col-xxl-3">
-            <div class="card mb-0">
-              <div class="card-body">
-                <a href="/" class="text-nowrap logo-img text-center d-block py-3 w-100">
+      className="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+      <div className="d-flex align-items-center justify-content-center w-100">
+        <div className="row justify-content-center w-100">
+          <div className="col-md-8 col-lg-6 col-xxl-3">
+            <div className="card mb-0">
+              <div className="card-body">
+                <a href="/" className="text-nowrap logo-img text-center d-block py-3 w-100">
                  
                 </a>
-                <p class="text-center">Your Social Campaigns</p>
+                <h1><b><p className="text-center">กรอกข้อมูลลูกค้า</p></b></h1>
 
                 {error && (
                     <div className="alert alert-danger" role="alert">
@@ -75,8 +81,8 @@ export default function CheckKyc() {
                       <div className="text-center">Loading...</div> // แสดงข้อความโหลด
                   ) : (
                   <form onSubmit={handleSubmit}>
-                    <div class="mb-3">
-                      <label for="customerID" class="form-label">เลขบัตรประชาชน</label>
+                    <div className="mb-3">
+                      <label htmlFor="customerID" className="form-label">เลขบัตรประชาชน</label>
 
                       <input
                                   type="text"
@@ -90,7 +96,7 @@ export default function CheckKyc() {
                               />
 
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">ตรวจสอบ</button>
+                    <button type="submit" className="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">ตรวจสอบ</button>
                   </form>
                   )}
 

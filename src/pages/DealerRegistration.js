@@ -1,16 +1,13 @@
-import React, { useState,useEffect  } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState,useEffect, useMemo  } from "react";
+import { useNavigate,useLocation } from "react-router-dom";
 
 const DealerRegistrationForm = () => {
+  const navigate = useNavigate();
   const location = useLocation();
-  const kycData = location.state?.kycData || {}; // ดึงข้อมูลจาก state
+
+  const kycData = useMemo(() => location.state?.kycData, [location.state]);
 
   const titles = ["----เลือก-----", "นางสาว", "นาง", "นาย", "เด็กหญิง"]; // เพิ่มตัวเลือกเริ่มต้น
-
-  const nameParts = kycData.name_th ? kycData.name_th.split(" ") : ["", "", ""]; 
-  const defaultTitle = nameParts[0] || "";
-  const defaultFirstName = nameParts[1] || "";
-  const defaultLastName = nameParts.slice(2).join(" ") || "";
 
   const [formData, setFormData] = useState({
     dealerName: "",
@@ -20,9 +17,9 @@ const DealerRegistrationForm = () => {
     referEmpTitle: "",
     referEmpFirstName:  "",
     referEmpLastName: "",
-    reqTitle: defaultTitle,
-    reqFirstName: defaultFirstName,
-    reqLastName: defaultLastName, // รองรับนามสกุลที่มีหลายคำ
+    reqTitle: "",
+    reqFirstName: "",
+    reqLastName: "", // รองรับนามสกุลที่มีหลายคำ
     onBehalfOf: "",
     taxId: "",
     authorizedShareCapital: "",
@@ -44,12 +41,26 @@ const DealerRegistrationForm = () => {
 
   //ถ้าเมื่อผู้ใช้กรอกข้อมูลในฟอร์มและกดส่งข้อมูลไปยังหน้าที่มี DealerRegistrationForm เมื่อกลับมาที่หน้านี้อาจจะมีการส่งข้อมูล KYC ใหม่ ดังนั้น useEffect จะช่วยให้ formData อัปเดตตามข้อมูลใหม่ที่ส่งเข้ามา
   useEffect(() => {
-    setFormData({
-      referEmpTitle: defaultTitle,
-      referEmpFirstName: defaultFirstName,
-      referEmpLastName: defaultLastName,
-    });
-  }, [defaultTitle, defaultFirstName, defaultLastName]);
+
+    if (!kycData) {
+      alert("กรุณาทำการตรวจสอบ KYC ก่อน!");
+      navigate("/check-kyc"); // ส่งกลับไปหน้า CheckKyc
+    }
+    else
+    {
+      const nameParts = kycData.name_th ? kycData.name_th.split(" ") : ["", "", ""]; 
+      const defaultTitle = nameParts[0] || "";
+      const defaultFirstName = nameParts[1] || "";
+      const defaultLastName = nameParts.slice(2).join(" ") || "";
+
+      setFormData({
+        referEmpTitle: defaultTitle,
+        referEmpFirstName: defaultFirstName,
+        referEmpLastName: defaultLastName,
+      });
+    }
+
+  }, [kycData,navigate]);
   
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,6 +71,7 @@ const DealerRegistrationForm = () => {
     console.log("Form Data Submitted:", formData);
   };
 
+  
   return (
     <div className="container bg-white p-4">
       <h4 className="bg-danger text-white p-2">ใบสมัครตัวแทนจำหน่าย มือถือ</h4>
